@@ -1,6 +1,6 @@
-package discordbot;
+package net.eltown.guardianbot;
 
-import discordbot.components.services.CommandService;
+import net.eltown.guardianbot.components.services.CommandService;
 import lombok.Getter;
 
 public class Main {

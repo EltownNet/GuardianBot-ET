@@ -1,6 +1,6 @@
-package discordbot.components.services;
+package net.eltown.guardianbot.components.services;
 
-import discordbot.components.data.Command;
+import net.eltown.guardianbot.components.data.Command;
 import org.javacord.api.event.message.MessageCreateEvent;
 
 import java.util.*;
@@ -39,6 +39,7 @@ public class CommandService {
                     command.execute(data, args);
             });
         }
+        event.getMessage().delete();
     }
 
 }

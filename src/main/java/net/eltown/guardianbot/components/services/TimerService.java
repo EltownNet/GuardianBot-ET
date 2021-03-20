@@ -1,4 +1,4 @@
-package discordbot.components.services;
+package net.eltown.guardianbot.components.services;
 
 import lombok.RequiredArgsConstructor;
 

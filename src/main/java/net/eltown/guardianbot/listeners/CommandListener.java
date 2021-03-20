@@ -1,6 +1,6 @@
-package discordbot.listeners;
+package net.eltown.guardianbot.listeners;
 
-import discordbot.Bot;
+import net.eltown.guardianbot.Bot;
 import lombok.RequiredArgsConstructor;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;

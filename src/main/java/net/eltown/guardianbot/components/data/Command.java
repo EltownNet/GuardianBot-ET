@@ -1,4 +1,4 @@
-package discordbot.components.data;
+package net.eltown.guardianbot.components.data;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
