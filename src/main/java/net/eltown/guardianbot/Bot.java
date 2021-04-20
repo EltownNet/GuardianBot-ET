@@ -3,11 +3,12 @@ package net.eltown.guardianbot;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
+import lombok.SneakyThrows;
 import net.eltown.guardianbot.commands.discord.*;
 import net.eltown.guardianbot.components.api.GuardianAPI;
-import net.eltown.guardianbot.components.messaging.MessageCall;
 import net.eltown.guardianbot.components.messaging.MessageListener;
 import net.eltown.guardianbot.components.services.CommandService;
+import net.eltown.guardianbot.components.tinyrabbit.TinyRabbit;
 import net.eltown.guardianbot.listeners.CommandListener;
 import lombok.Getter;
 import org.javacord.api.DiscordApi;
@@ -45,12 +46,13 @@ public class Bot {
     /*
      * Messaging
      */
-    private final MessageCall messageCall;
+    private final TinyRabbit rabbit;
     private final MessageListener messageListener;
 
     private final ServerTextChannel logChannel;
     private final ServerTextChannel serverLogChannel;
 
+    @SneakyThrows
     public Bot(final String token, final CommandService commandService) {
         this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
@@ -73,8 +75,9 @@ public class Bot {
         this.connectDatabase();
         this.guardianAPI = new GuardianAPI(this.database, this);
         this.commandService = commandService;
-        this.messageCall = new MessageCall(this);
+        this.rabbit = new TinyRabbit("localhost", "Guardian/Discord/Call");
         this.messageListener = new MessageListener(this);
+        this.messageListener.startListening();
         System.out.println("[bot] All API Components successfully initialized.");
     }
 

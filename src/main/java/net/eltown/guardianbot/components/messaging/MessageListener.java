@@ -1,86 +1,61 @@
 package net.eltown.guardianbot.components.messaging;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DeliverCallback;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import net.eltown.guardianbot.Bot;
 import net.eltown.guardianbot.components.data.CallData;
+import net.eltown.guardianbot.components.tinyrabbit.TinyRabbitListener;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
 import java.awt.*;
-import java.nio.charset.StandardCharsets;
 
+@RequiredArgsConstructor
 public class MessageListener {
 
     private final Bot guardian;
-    private final Connection connection;
-    private final Channel channel;
-
-    @SneakyThrows
-    public MessageListener(final Bot guardian) {
-        this.guardian = guardian;
-
-        final ConnectionFactory connectionFactory = new ConnectionFactory();
-        connectionFactory.setHost("localhost");
-        this.connection = connectionFactory.newConnection("Guardian/Discord/Listener");
-
-        this.channel = this.connection.createChannel();
-        this.channel.queueDeclare("guardian_discord", false, false, false, null);
-
-        this.startListening();
-    }
 
     @SneakyThrows
     public void startListening() {
-        final DeliverCallback deliverCallback = (tag, delivery) -> {
-            final String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            final String[] rawCallData = message.split("//");
-            final CallData callData = CallData.valueOf(rawCallData[0].toUpperCase());
-
-            switch (callData) {
-                case INITIATE_BAN:
+        final TinyRabbitListener listener = new TinyRabbitListener("localhost");
+        listener.callback((request -> {
+            switch (CallData.valueOf(request.getKey().toUpperCase())) {
+                case REQUEST_INITIATE_BAN:
                     final EmbedBuilder e = new EmbedBuilder()
-                            .setTitle("**Ban-Report** " + rawCallData[1])
-                            .setDescription("Der Spieler **" + rawCallData[2] + "** wurde mit dem Grund **" + rawCallData[3] + "** von **" + rawCallData[4] + "** gebannt.")
+                            .setTitle("**Ban-Report** " + request.getData()[1])
+                            .setDescription("Der Spieler **" + request.getData()[2] + "** wurde mit dem Grund **" + request.getData()[3] + "** von **" + request.getData()[4] + "** gebannt.")
                             .setColor(Color.RED)
-                            .setFooter("Verbleibend: " + this.guardian.getGuardianAPI().getRemainingTime(Long.parseLong(rawCallData[5])))
+                            .setFooter("Verbleibend: " + this.guardian.getGuardianAPI().getRemainingTime(Long.parseLong(request.getData()[5])))
                             .setTimestampToNow();
                     this.guardian.getServerLogChannel().sendMessage(e);
                     break;
-                case INITIATE_MUTE:
+                case REQUEST_INITIATE_MUTE:
                     final EmbedBuilder f = new EmbedBuilder()
-                            .setTitle("**Mute-Report** " + rawCallData[1])
-                            .setDescription("Der Spieler **" + rawCallData[2] + "** wurde mit dem Grund **" + rawCallData[3] + "** von **" + rawCallData[4] + "** gemutet.")
+                            .setTitle("**Mute-Report** " + request.getData()[1])
+                            .setDescription("Der Spieler **" + request.getData()[2] + "** wurde mit dem Grund **" + request.getData()[3] + "** von **" + request.getData()[4] + "** gemutet.")
                             .setColor(Color.RED)
-                            .setFooter("Verbleibend: " + this.guardian.getGuardianAPI().getRemainingTime(Long.parseLong(rawCallData[5])))
+                            .setFooter("Verbleibend: " + this.guardian.getGuardianAPI().getRemainingTime(Long.parseLong(request.getData()[5])))
                             .setTimestampToNow();
                     this.guardian.getServerLogChannel().sendMessage(f);
                     break;
-                case CANCEL_BAN:
+                case REQUEST_CANCEL_BAN:
                     final EmbedBuilder u = new EmbedBuilder()
-                            .setTitle("**Unban-Report** " + rawCallData[1])
-                            .setDescription("Die Bestrafung von **" + rawCallData[3] + "** wurde mit dem Grund **" + rawCallData[4] + "** von **" + rawCallData[5] + "** aufgehoben.")
+                            .setTitle("**Unban-Report** " + request.getData()[1])
+                            .setDescription("Die Bestrafung von **" + request.getData()[3] + "** wurde mit dem Grund **" + request.getData()[4] + "** von **" + request.getData()[5] + "** aufgehoben.")
                             .setColor(Color.RED)
-                            .setFooter(rawCallData[2])
+                            .setFooter(request.getData()[2])
                             .setTimestampToNow();
                     this.guardian.getServerLogChannel().sendMessage(u);
                     break;
-                case CANCEL_MUTE:
+                case REQUEST_CANCEL_MUTE:
                     final EmbedBuilder g = new EmbedBuilder()
-                            .setTitle("**Unmute-Report** " + rawCallData[1])
-                            .setDescription("Die Bestrafung von **" + rawCallData[3] + "** wurde mit dem Grund **" + rawCallData[4] + "** von **" + rawCallData[5] + "** aufgehoben.")
+                            .setTitle("**Unmute-Report** " + request.getData()[1])
+                            .setDescription("Die Bestrafung von **" + request.getData()[3] + "** wurde mit dem Grund **" + request.getData()[4] + "** von **" + request.getData()[5] + "** aufgehoben.")
                             .setColor(Color.RED)
-                            .setFooter(rawCallData[2])
+                            .setFooter(request.getData()[2])
                             .setTimestampToNow();
                     this.guardian.getServerLogChannel().sendMessage(g);
                     break;
             }
-        };
-
-        this.channel.basicConsume("guardian_discord", true, deliverCallback, consumerTag -> {
-        });
+        }), "Guardian/Discord/Listener", "guardian_discord");
     }
-
 }
