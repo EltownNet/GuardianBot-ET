@@ -83,7 +83,7 @@ public class Bot {
 
     private void connectDatabase() {
         try {
-            final MongoClientURI clientURI = new MongoClientURI("mongodb://root:e67b!LwYNdv45g6smn3H9p!32JzfsdgzYt6hNnYK323!wdL@185.223.28.34:27017/?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false");
+            final MongoClientURI clientURI = new MongoClientURI("mongodb://root:e67bLwYNdv45g6smn3H9p32JzfsdgzYt6hNnYK323wdL@45.138.50.23:27017/admin?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false");
             this.databaseClient = new MongoClient(clientURI);
             this.database = databaseClient.getDatabase("eltown_bot");
             final Logger mongoLogger = Logger.getLogger("org.mongodb.driver");

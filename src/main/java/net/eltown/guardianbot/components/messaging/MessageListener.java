@@ -17,7 +17,7 @@ public class MessageListener {
     @SneakyThrows
     public void startListening() {
         final TinyRabbitListener listener = new TinyRabbitListener("localhost");
-        listener.callback((request -> {
+        listener.receive((request -> {
             switch (CallData.valueOf(request.getKey().toUpperCase())) {
                 case REQUEST_INITIATE_BAN:
                     final EmbedBuilder e = new EmbedBuilder()
