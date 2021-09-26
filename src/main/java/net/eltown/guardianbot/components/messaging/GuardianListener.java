@@ -3,14 +3,14 @@ package net.eltown.guardianbot.components.messaging;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import net.eltown.guardianbot.Bot;
-import net.eltown.guardianbot.components.data.CallData;
+import net.eltown.guardianbot.components.data.guardian.GuardianCalls;
 import net.eltown.guardianbot.components.tinyrabbit.TinyRabbitListener;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 
 import java.awt.*;
 
 @RequiredArgsConstructor
-public class MessageListener {
+public class GuardianListener {
 
     private final Bot guardian;
 
@@ -18,7 +18,7 @@ public class MessageListener {
     public void startListening() {
         final TinyRabbitListener listener = new TinyRabbitListener("localhost");
         listener.receive((request -> {
-            switch (CallData.valueOf(request.getKey().toUpperCase())) {
+            switch (GuardianCalls.valueOf(request.getKey().toUpperCase())) {
                 case REQUEST_INITIATE_BAN:
                     final EmbedBuilder e = new EmbedBuilder()
                             .setTitle("**Ban-Report** " + request.getData()[1])
@@ -56,6 +56,6 @@ public class MessageListener {
                     this.guardian.getServerLogChannel().sendMessage(g);
                     break;
             }
-        }), "Guardian/Discord/Listener", "guardian_discord");
+        }), "Discord/Guardian[Guardian]", "discord.guardian.guardian");
     }
 }

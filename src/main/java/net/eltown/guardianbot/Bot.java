@@ -6,7 +6,8 @@ import com.mongodb.client.MongoDatabase;
 import lombok.SneakyThrows;
 import net.eltown.guardianbot.commands.discord.*;
 import net.eltown.guardianbot.components.api.GuardianAPI;
-import net.eltown.guardianbot.components.messaging.MessageListener;
+import net.eltown.guardianbot.components.messaging.GuardianListener;
+import net.eltown.guardianbot.components.messaging.LogListener;
 import net.eltown.guardianbot.components.services.CommandService;
 import net.eltown.guardianbot.components.tinyrabbit.TinyRabbit;
 import net.eltown.guardianbot.listeners.CommandListener;
@@ -47,14 +48,15 @@ public class Bot {
      * Messaging
      */
     private final TinyRabbit rabbit;
-    private final MessageListener messageListener;
+    private final GuardianListener guardianListener;
+    private final LogListener logListener;
 
     private final ServerTextChannel logChannel;
     private final ServerTextChannel serverLogChannel;
 
     @SneakyThrows
     public Bot(final String token, final CommandService commandService) {
-        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() / 2);
 
         commandService.register(
                 new D_BanCommand(this),
@@ -75,15 +77,20 @@ public class Bot {
         this.connectDatabase();
         this.guardianAPI = new GuardianAPI(this.database, this);
         this.commandService = commandService;
-        this.rabbit = new TinyRabbit("localhost", "Guardian/Discord/Call");
-        this.messageListener = new MessageListener(this);
-        this.messageListener.startListening();
+        this.rabbit = new TinyRabbit("localhost", "Discord/Guardian/System[Main]");
+
+        this.guardianListener = new GuardianListener(this);
+        this.guardianListener.startListening();
+
+        this.logListener = new LogListener(this);
+        this.logListener.startListening();
+
         System.out.println("[bot] All API Components successfully initialized.");
     }
 
     private void connectDatabase() {
         try {
-            final MongoClientURI clientURI = new MongoClientURI("mongodb://root:e67bLwYNdv45g6smn3H9p32JzfsdgzYt6hNnYK323wdL@45.138.50.23:27017/admin?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false");
+            final MongoClientURI clientURI = new MongoClientURI("mongodb://root:Qco7TDqoYq3RXq4pA3y7ETQTK6AgqzmTtRGLsgbN@45.138.50.23:27017/admin?authSource=admin&readPreference=primary&appname=MongoDB%20Compass&ssl=false");
             this.databaseClient = new MongoClient(clientURI);
             this.database = databaseClient.getDatabase("eltown_bot");
             final Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
